@@ -2,26 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+  .card {
+    background-color: white;
+    border: 1px solid theme('colors.zbt.navy-200');
+    border-radius: theme('borderRadius.xl');
+    box-shadow: theme('boxShadow.card');
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
+  .card-exec {
+    background-color: white;
+    border: 1px solid theme('colors.zbt.gold-100');
+    border-radius: theme('borderRadius.xl');
+    box-shadow: theme('boxShadow.card');
+  }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .btn-primary {
+    background-color: theme('colors.zbt.navy');
+    color: white;
+    font-size: theme('fontSize.sm');
+    padding: theme('spacing.2') theme('spacing.4');
+    border-radius: theme('borderRadius.lg');
+    font-weight: theme('fontWeight.medium');
+    transition-property: color, background-color, border-color;
+    transition-duration: 150ms;
+  }
+
+  .btn-primary:hover {
+    background-color: theme('colors.zbt.navy-dark');
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+  }
+
+  .btn-secondary {
+    border: 1px solid theme('colors.zbt.navy-200');
+    color: theme('colors.zbt.navy');
+    font-size: theme('fontSize.sm');
+    padding: theme('spacing.2') theme('spacing.4');
+    border-radius: theme('borderRadius.lg');
+    font-weight: theme('fontWeight.medium');
+    transition-property: color, background-color, border-color;
+    transition-duration: 150ms;
+  }
+
+  .btn-secondary:hover {
+    background-color: theme('colors.zbt.navy-50');
+  }
+
+  .badge-admin {
+    font-size: theme('fontSize.xs');
+    background-color: theme('colors.zbt.gold-bright');
+    color: theme('colors.zbt.navy');
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: theme('fontWeight.semibold');
+  }
+
+  .badge-exec {
+    font-size: theme('fontSize.xs');
+    background-color: theme('colors.zbt.gold-100');
+    color: theme('colors.zbt.navy');
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: theme('fontWeight.medium');
   }
 }
