@@ -66,7 +66,14 @@ export default async function DashboardPage() {
             Treasury
           </span>
         </div>
-        <span className="text-sm text-zbt-navy-100">{profile?.name}</span>
+        <div className="flex items-center gap-4">
+          {user.email === 'hudsonjmurray11@gmail.com' && (
+            <a href="/admin" className="badge-admin hover:opacity-90 transition-opacity">
+              Admin
+            </a>
+          )}
+          <span className="text-sm text-zbt-navy-100">{profile?.name}</span>
+        </div>
       </nav>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
