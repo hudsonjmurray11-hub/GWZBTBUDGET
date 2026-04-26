@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { BudgetCategory } from '@/lib/types';
 
-export function BudgetPanel({ initialCategories }: { initialCategories: BudgetCategory[] }) {
+export function BudgetPanel({ initialCategories, isEditMode }: { initialCategories: BudgetCategory[]; isEditMode: boolean }) {
   const [categories, setCategories] = useState<BudgetCategory[]>(initialCategories);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<BudgetCategory>>({});
@@ -88,9 +88,11 @@ export function BudgetPanel({ initialCategories }: { initialCategories: BudgetCa
     <div className="card p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-gray-800">Budget Categories</h2>
-        <button onClick={() => setShowAdd(v => !v)} className="btn-primary">
-          {showAdd ? 'Cancel' : '+ Add Category'}
-        </button>
+        {isEditMode && (
+          <button onClick={() => setShowAdd(v => !v)} className="btn-primary">
+            {showAdd ? 'Cancel' : '+ Add Category'}
+          </button>
+        )}
       </div>
 
       {showAdd && (
@@ -148,7 +150,7 @@ export function BudgetPanel({ initialCategories }: { initialCategories: BudgetCa
               <th className="text-left px-3 py-2.5 font-medium text-gray-600">Category</th>
               <th className="text-left px-3 py-2.5 font-medium text-gray-600">Semester</th>
               <th className="text-right px-3 py-2.5 font-medium text-gray-600">Allocated</th>
-              <th className="text-center px-3 py-2.5 font-medium text-gray-600">Actions</th>
+              {isEditMode && <th className="text-center px-3 py-2.5 font-medium text-gray-600">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-zbt-navy-100">
@@ -195,40 +197,42 @@ export function BudgetPanel({ initialCategories }: { initialCategories: BudgetCa
                     <span className="text-gray-600">${c.allocated_amount.toLocaleString()}</span>
                   )}
                 </td>
-                <td className="px-3 py-2.5 text-center">
-                  {editingId === c.id ? (
-                    <div className="flex gap-1 justify-center">
-                      <button
-                        onClick={() => handleSave(c.id)}
-                        disabled={saveLoading}
-                        className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
-                      >
-                        {saveLoading ? '...' : 'Save'}
-                      </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className="text-xs text-gray-500 border border-gray-200 rounded px-2 py-1"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-1 justify-center">
-                      <button
-                        onClick={() => { setEditingId(c.id); setEditForm({ name: c.name, allocated_amount: c.allocated_amount, semester: c.semester }); setSaveError(''); }}
-                        className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(c.id)}
-                        className="text-xs text-red-600 border border-red-200 rounded px-2 py-1 hover:bg-red-50"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </td>
+                {isEditMode && (
+                  <td className="px-3 py-2.5 text-center">
+                    {editingId === c.id ? (
+                      <div className="flex gap-1 justify-center">
+                        <button
+                          onClick={() => handleSave(c.id)}
+                          disabled={saveLoading}
+                          className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
+                        >
+                          {saveLoading ? '...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="text-xs text-gray-500 border border-gray-200 rounded px-2 py-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-1 justify-center">
+                        <button
+                          onClick={() => { setEditingId(c.id); setEditForm({ name: c.name, allocated_amount: c.allocated_amount, semester: c.semester }); setSaveError(''); }}
+                          className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(c.id)}
+                          className="text-xs text-red-600 border border-red-200 rounded px-2 py-1 hover:bg-red-50"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

@@ -1,8 +1,6 @@
 import { createServerSupabaseClient, createAdminClient } from '@/lib/supabase-server';
 import { redirect } from 'next/navigation';
-import { MembersPanel } from './MembersPanel';
-import { DuesPanel } from './DuesPanel';
-import { BudgetPanel } from './BudgetPanel';
+import { AdminContent } from './AdminContent';
 
 const ADMIN_EMAIL = 'hudsonjmurray11@gmail.com';
 
@@ -60,16 +58,7 @@ export default async function AdminPage() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Admin Board</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage members, dues, and budget categories. Changes take effect immediately.
-          </p>
-        </div>
-
-        <MembersPanel initialMembers={members} />
-        <DuesPanel initialDues={dues} members={members} />
-        <BudgetPanel initialCategories={categories} />
+        <AdminContent members={members} dues={dues} categories={categories} />
       </main>
     </div>
   );

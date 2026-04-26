@@ -14,7 +14,7 @@ interface Member {
 const GRADES: (Grade | '')[] = ['', 'Freshman', 'Sophomore', 'Junior', 'Senior'];
 const ROLES: Role[] = ['member', 'exec'];
 
-export function MembersPanel({ initialMembers }: { initialMembers: Member[] }) {
+export function MembersPanel({ initialMembers, isEditMode }: { initialMembers: Member[]; isEditMode: boolean }) {
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Member>>({});
@@ -98,9 +98,11 @@ export function MembersPanel({ initialMembers }: { initialMembers: Member[] }) {
     <div className="card p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-gray-800">Members</h2>
-        <button onClick={() => setShowAdd(v => !v)} className="btn-primary">
-          {showAdd ? 'Cancel' : '+ Add Member'}
-        </button>
+        {isEditMode && (
+          <button onClick={() => setShowAdd(v => !v)} className="btn-primary">
+            {showAdd ? 'Cancel' : '+ Add Member'}
+          </button>
+        )}
       </div>
 
       {showAdd && (
@@ -175,7 +177,7 @@ export function MembersPanel({ initialMembers }: { initialMembers: Member[] }) {
               <th className="text-left px-3 py-2.5 font-medium text-gray-600">Email</th>
               <th className="text-left px-3 py-2.5 font-medium text-gray-600">Role</th>
               <th className="text-left px-3 py-2.5 font-medium text-gray-600">Grade</th>
-              <th className="text-center px-3 py-2.5 font-medium text-gray-600">Actions</th>
+              {isEditMode && <th className="text-center px-3 py-2.5 font-medium text-gray-600">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-zbt-navy-100">
@@ -221,40 +223,42 @@ export function MembersPanel({ initialMembers }: { initialMembers: Member[] }) {
                     <span className="text-gray-500">{m.grade ?? '—'}</span>
                   )}
                 </td>
-                <td className="px-3 py-2.5 text-center">
-                  {editingId === m.id ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handleSave(m.id)}
-                        disabled={saveLoading}
-                        className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
-                      >
-                        {saveLoading ? '...' : 'Save'}
-                      </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className="text-xs text-gray-500 border border-gray-200 rounded px-2 py-1 hover:bg-gray-50"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => startEdit(m)}
-                        className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(m.id)}
-                        className="text-xs text-red-600 border border-red-200 rounded px-2 py-1 hover:bg-red-50"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </td>
+                {isEditMode && (
+                  <td className="px-3 py-2.5 text-center">
+                    {editingId === m.id ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleSave(m.id)}
+                          disabled={saveLoading}
+                          className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
+                        >
+                          {saveLoading ? '...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="text-xs text-gray-500 border border-gray-200 rounded px-2 py-1 hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => startEdit(m)}
+                          className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(m.id)}
+                          className="text-xs text-red-600 border border-red-200 rounded px-2 py-1 hover:bg-red-50"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

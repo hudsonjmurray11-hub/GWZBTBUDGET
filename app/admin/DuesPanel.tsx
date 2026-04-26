@@ -24,7 +24,7 @@ interface Props {
   members: Member[];
 }
 
-export function DuesPanel({ initialDues, members }: Props) {
+export function DuesPanel({ initialDues, members, isEditMode }: Props & { isEditMode: boolean }) {
   const currentSemester = (() => {
     const now = new Date();
     const month = now.getMonth() + 1;
@@ -154,56 +154,58 @@ export function DuesPanel({ initialDues, members }: Props) {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4 mb-6">
-        <form onSubmit={handleLogPayment} className="border border-zbt-navy-200 rounded-xl p-4 bg-zbt-navy-50">
-          <h3 className="font-medium text-sm text-gray-700 mb-3">Log Payment Received</h3>
-          <div className="space-y-2">
-            <select
-              value={logMemberId}
-              onChange={e => setLogMemberId(e.target.value)}
-              className="w-full border border-zbt-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zbt-navy"
-            >
-              {members.map(m => <option key={m.id} value={m.id}>{m.name}{m.grade ? ` (${m.grade})` : ''}</option>)}
-            </select>
+      {isEditMode && (
+        <div className="grid sm:grid-cols-2 gap-4 mb-6">
+          <form onSubmit={handleLogPayment} className="border border-zbt-navy-200 rounded-xl p-4 bg-zbt-navy-50">
+            <h3 className="font-medium text-sm text-gray-700 mb-3">Log Payment Received</h3>
+            <div className="space-y-2">
+              <select
+                value={logMemberId}
+                onChange={e => setLogMemberId(e.target.value)}
+                className="w-full border border-zbt-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zbt-navy"
+              >
+                {members.map(m => <option key={m.id} value={m.id}>{m.name}{m.grade ? ` (${m.grade})` : ''}</option>)}
+              </select>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="Amount ($)"
+                  value={logAmount}
+                  onChange={e => setLogAmount(e.target.value)}
+                  required
+                  className="flex-1 border border-zbt-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zbt-navy"
+                />
+                <button type="submit" disabled={logLoading} className="btn-primary">
+                  {logLoading ? '...' : 'Log'}
+                </button>
+              </div>
+              {logError && <p className="text-xs text-red-600">{logError}</p>}
+            </div>
+          </form>
+
+          <form onSubmit={handleBulkSet} className="border border-zbt-gold-100 rounded-xl p-4 bg-zbt-gold-50">
+            <h3 className="font-medium text-sm text-gray-700 mb-3">Bulk Set Dues for {semester}</h3>
+            <p className="text-xs text-gray-500 mb-2">Sets the owed amount for every member. Existing payment records are preserved.</p>
             <div className="flex gap-2">
               <input
                 type="number"
-                min="0.01"
+                min="0"
                 step="0.01"
                 placeholder="Amount ($)"
-                value={logAmount}
-                onChange={e => setLogAmount(e.target.value)}
+                value={bulkAmount}
+                onChange={e => setBulkAmount(e.target.value)}
                 required
                 className="flex-1 border border-zbt-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zbt-navy"
               />
-              <button type="submit" disabled={logLoading} className="btn-primary">
-                {logLoading ? '...' : 'Log'}
+              <button type="submit" disabled={bulkLoading} className="btn-primary">
+                {bulkLoading ? '...' : 'Set All'}
               </button>
             </div>
-            {logError && <p className="text-xs text-red-600">{logError}</p>}
-          </div>
-        </form>
-
-        <form onSubmit={handleBulkSet} className="border border-zbt-gold-100 rounded-xl p-4 bg-zbt-gold-50">
-          <h3 className="font-medium text-sm text-gray-700 mb-3">Bulk Set Dues for {semester}</h3>
-          <p className="text-xs text-gray-500 mb-2">Sets the owed amount for every member. Existing payment records are preserved.</p>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Amount ($)"
-              value={bulkAmount}
-              onChange={e => setBulkAmount(e.target.value)}
-              required
-              className="flex-1 border border-zbt-navy-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zbt-navy"
-            />
-            <button type="submit" disabled={bulkLoading} className="btn-primary">
-              {bulkLoading ? '...' : 'Set All'}
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -215,7 +217,7 @@ export function DuesPanel({ initialDues, members }: Props) {
               <th className="text-right px-3 py-2.5 font-medium text-gray-600">Paid</th>
               <th className="text-right px-3 py-2.5 font-medium text-gray-600">Balance</th>
               <th className="text-center px-3 py-2.5 font-medium text-gray-600">Status</th>
-              <th className="text-center px-3 py-2.5 font-medium text-gray-600">Edit</th>
+              {isEditMode && <th className="text-center px-3 py-2.5 font-medium text-gray-600">Edit</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-zbt-navy-100">
@@ -263,32 +265,34 @@ export function DuesPanel({ initialDues, members }: Props) {
                   <td className="px-3 py-2.5 text-center">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cls}`}>{label}</span>
                   </td>
-                  <td className="px-3 py-2.5 text-center">
-                    {editingId === d.id ? (
-                      <div className="flex gap-1 justify-center">
+                  {isEditMode && (
+                    <td className="px-3 py-2.5 text-center">
+                      {editingId === d.id ? (
+                        <div className="flex gap-1 justify-center">
+                          <button
+                            onClick={() => handleSaveDues(d.id)}
+                            disabled={saveLoading}
+                            className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
+                          >
+                            {saveLoading ? '...' : 'Save'}
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="text-xs text-gray-500 border border-gray-200 rounded px-2 py-1"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
                         <button
-                          onClick={() => handleSaveDues(d.id)}
-                          disabled={saveLoading}
+                          onClick={() => { setEditingId(d.id); setEditOwed(d.amount_owed.toString()); setEditPaid(d.amount_paid.toString()); setSaveError(''); }}
                           className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
                         >
-                          {saveLoading ? '...' : 'Save'}
+                          Edit
                         </button>
-                        <button
-                          onClick={() => setEditingId(null)}
-                          className="text-xs text-gray-500 border border-gray-200 rounded px-2 py-1"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => { setEditingId(d.id); setEditOwed(d.amount_owed.toString()); setEditPaid(d.amount_paid.toString()); setSaveError(''); }}
-                        className="text-xs text-zbt-navy border border-zbt-navy-200 rounded px-2 py-1 hover:bg-zbt-navy-50"
-                      >
-                        Edit
-                      </button>
-                    )}
-                  </td>
+                      )}
+                    </td>
+                  )}
                 </tr>
               );
             })}
